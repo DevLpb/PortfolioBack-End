@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "https://miportfolioapfrontend.web.app")
-/*@CrossOrigin(origins = "http://localhost:4200")*/
+@CrossOrigin(origins = {"https://miportfolioapfrontend.web.app", "http://localhost:4200"})
 @RequestMapping("/educacion")
 
 public class EducacionController {
@@ -45,6 +45,7 @@ public class EducacionController {
         return new ResponseEntity(educacion, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
         
@@ -58,6 +59,7 @@ public class EducacionController {
         return new ResponseEntity(new Mensaje("Educación eliminada."), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody DtoEducacion dtoEduc) {
         
@@ -77,13 +79,13 @@ public class EducacionController {
         return new ResponseEntity(new Mensaje("Educación creada."), HttpStatus.OK);
     }
     
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody DtoEducacion dtoEduc) {
 
         //Validación. Comprueba la existencia del ID.
         if (!educService.existsById(id)) {
-            return new ResponseEntity(new Mensaje("El ID no existe."), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("El ID no existe."), HttpStatus.NOT_FOUND);
         }
 
         //Validación. Comparación de nombre de experiencias.    

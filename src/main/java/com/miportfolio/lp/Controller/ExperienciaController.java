@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/explab")
-@CrossOrigin(origins = "https://miportfolioapfrontend.web.app")
-/*@CrossOrigin(origins = "http://localhost:4200")*/
+@CrossOrigin(origins = {"https://miportfolioapfrontend.web.app", "http://localhost:4200"})
 public class ExperienciaController {
 
     @Autowired
@@ -44,7 +44,8 @@ public class ExperienciaController {
         Experiencia experiencia = expService.getOne(id).get();
         return new ResponseEntity(experiencia, HttpStatus.OK);
     }
-
+    
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") int id) {
         
@@ -58,6 +59,7 @@ public class ExperienciaController {
         return new ResponseEntity(new Mensaje("Experiencia eliminada."), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/create")
     public ResponseEntity<?> create(@RequestBody DtoExperiencia dtoExp) {
         
@@ -78,12 +80,13 @@ public class ExperienciaController {
 
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> update(@PathVariable("id") int id, @RequestBody DtoExperiencia dtoExp) {
 
         //Validación. Comprueba la existencia del ID.
         if (!expService.existsById(id)) {
-            return new ResponseEntity(new Mensaje("El id no existe."), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity(new Mensaje("El id no existe."), HttpStatus.NOT_FOUND);
         }
 
         //Validación. Comparación de nombre de experiencias.    
